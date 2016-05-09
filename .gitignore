@@ -1,0 +1,7 @@
+public/**/*
+server/uploads
+node_modules
+.sass_cache
+.DS_Store
+*.log
+.tmp/**/*

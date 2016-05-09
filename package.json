@@ -1,0 +1,24 @@
+{
+  "name": "workforce-pubnub-generator",
+  "version": "1.0.0",
+  "description": "Generate position values for users in Pubnub for Workforce Manager app to test messaging.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Rob McLarty <rob.m@myplanet.com>",
+  "license": "MIT",
+  "dependencies": {
+    "body-parser": "1.15.1",
+    "cors": "2.7.1",
+    "express": "4.13.4",
+    "jsonwebtoken": "6.2.0",
+    "node-fetch": "1.5.2",
+    "pubnub": "3.14.5"
+  },
+  "devDependencies": {
+    "gulp": "github:gulpjs/gulp#4.0",
+    "gulp-nodemon": "2.0.6",
+    "yargs": "4.7.0"
+  }
+}
