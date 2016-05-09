@@ -2,10 +2,18 @@
 
 const express = require('express');
 const fetch = require('node-fetch');
+const Pubnub = require('pubnub');
 const config = require('./config');
 
 const tokensUrl = `${ config.authManagerUrl }/tokens`;
 const usersUrl = `${ config.authManagerUrl }/users`;
+const pubnub = Pubnub.init({
+  publish_key: config.publishKey,
+  subscribe_key: config.subscribeKey,
+  error: err => {
+    console.log('ERROR: Could not connect to Pubnub.', err)
+  }
+});
 let users = [];
 let accessToken = '';
 
@@ -76,6 +84,7 @@ const getUsers = (url, token) => (
     .catch(err => console.log('ERROR: Something went wrong while trying to fetch users.', err))
 );
 
+// Change users' position based on a random bearing and distance.
 // Reference for calculating distance, bearing, and more between lat/long
 // points: http://www.movable-type.co.uk/scripts/latlong.html
 const updatedUserPositions = users => (
@@ -95,24 +104,52 @@ const updatedUserPositions = users => (
   })
 );
 
+const publishPubnubMessage = (pubnub, channel) => message => {
+  return new Promise((resolve, reject) => {
+    pubnub.publish({
+      channel,
+      message,
+      callback: m => resolve(m),
+      error: err => reject(err)
+    });
+  });
+};
+
+const subscribeToPubnub = (pubnub, channel) => () => {
+  pubnub.subscribe({
+    channel,
+    message: msg => console.log('Received: ', msg),
+    error: err => console.log('Pubnub error: ', err)
+  });
+};
+
+const publishMessage = publishPubnubMessage(pubnub, config.channel);
+const subscribe = subscribeToPubnub(pubnub, config.channel);
+
 // Broadcase all users to PubNub.
 const broadcastUserPositions = users => {
-  console.log(users[0]);
+  return new Promise((resolve, reject) => {
+    publishMessage(users[0])
+      .then(msg => console.log('Sent: ', msg))
+      .then(() => resolve(users))
+      .catch(err => reject(err));
+  });
 };
 
 // Every two seconds, update all users' positions to a newly random direction
 // and distance from their current position.
 const repeatedlyUpdateAndBroadcast = users => {
   setTimeout(() => {
-    const updatedUsers = updatedUserPositions(users);
-    broadcastUserPositions(updatedUsers);
-    repeatedlyUpdateAndBroadcast(updatedUsers);
+    broadcastUserPositions(updatedUserPositions(users))
+      .then(updatedUsers => repeatedlyUpdateAndBroadcast(updatedUsers))
+      .catch(err => console.log('ERROR: Could not publish to Pubnub', err));
   }, 2000);
 };
 
 login(tokensUrl, config.username, config.password)
   .then(accessToken => getUsers(usersUrl, accessToken))
   .then(users => repeatedlyUpdateAndBroadcast(users))
+  .then(() => subscribe())
   .catch(err => console.log('ERROR: Something went wrong.', err));
 
 const server = app.listen(app.get('port'), function () {

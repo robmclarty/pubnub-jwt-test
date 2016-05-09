@@ -11,3 +11,5 @@ gulp.task('server', function () {
     env: { 'NODE_ENV': 'development' }
   });
 });
+
+gulp.task('default', gulp.series('server'));
