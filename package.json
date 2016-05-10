@@ -9,9 +9,6 @@
   "author": "Rob McLarty <rob.m@myplanet.com>",
   "license": "MIT",
   "dependencies": {
-    "body-parser": "1.15.1",
-    "cors": "2.7.1",
-    "express": "4.13.4",
     "jsonwebtoken": "6.2.0",
     "node-fetch": "1.5.2",
     "pubnub": "3.14.5"

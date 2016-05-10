@@ -1,10 +1,12 @@
 'use strict';
 
-const express = require('express');
+const http = require('http');
 const fetch = require('node-fetch');
 const Pubnub = require('pubnub');
 const config = require('./config');
 
+const server = http.createServer();
+const port = 3069;
 const tokensUrl = `${ config.authManagerUrl }/tokens`;
 const usersUrl = `${ config.authManagerUrl }/users`;
 const pubnub = Pubnub.init({
@@ -16,10 +18,6 @@ const pubnub = Pubnub.init({
 });
 let users = [];
 let accessToken = '';
-
-const app = express();
-
-app.set('port', process.env.PORT || 3069);
 
 // Starting position is approx Union Station Toronto.
 const startingPosition = {
@@ -129,10 +127,12 @@ const subscribe = subscribeToPubnub(pubnub, config.channel);
 // Broadcase all users to PubNub.
 const broadcastUserPositions = users => {
   return new Promise((resolve, reject) => {
-    publishMessage(users[0])
-      .then(msg => console.log('Sent: ', msg))
-      .then(() => resolve(users))
-      .catch(err => reject(err));
+    users.forEach(user => {
+      publishMessage(user)
+        .then(msg => console.log('Sent: ', msg))
+        .catch(err => reject(err));
+    });
+    resolve(users);
   });
 };
 
@@ -152,6 +152,4 @@ login(tokensUrl, config.username, config.password)
   .then(() => subscribe())
   .catch(err => console.log('ERROR: Something went wrong.', err));
 
-const server = app.listen(app.get('port'), function () {
-  console.log(`Server started at port ${ server.address().port }`);
-});
+server.listen(port, () => console.log('Server started on port ', port));
