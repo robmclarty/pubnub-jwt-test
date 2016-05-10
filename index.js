@@ -7,8 +7,8 @@ const config = require('./config');
 
 const server = http.createServer();
 const port = 3069;
-const tokensUrl = `${ config.authManagerUrl }/tokens`;
-const usersUrl = `${ config.authManagerUrl }/users`;
+const tokensUrl = `${ config.authUrl }/tokens`;
+const usersUrl = `${ config.authUrl }/users`;
 const pubnub = Pubnub.init({
   publish_key: config.publishKey,
   subscribe_key: config.subscribeKey,
@@ -19,7 +19,7 @@ const pubnub = Pubnub.init({
 let users = [];
 let accessToken = '';
 
-// Starting position is approx Union Station Toronto.
+// Starting position is approximately at Union Station Toronto.
 const startingPosition = {
   latitude: 43.647424,
   longitude: -79.381077

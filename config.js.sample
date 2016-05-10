@@ -1,0 +1,12 @@
+'use strict';
+
+const config = {
+  authUrl: 'http://localhost:3000',
+  publishKey: 'pubnub-publish-key',
+  subscribeKey: 'pubnub-subscribe-key',
+  channel: 'my-test',
+  username: 'my-username',
+  password: 'my-password'
+};
+
+module.exports = config;
