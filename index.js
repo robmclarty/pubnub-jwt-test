@@ -143,7 +143,7 @@ const repeatedlyUpdateAndBroadcast = users => {
     broadcastUserPositions(updatedUserPositions(users))
       .then(updatedUsers => repeatedlyUpdateAndBroadcast(updatedUsers))
       .catch(err => console.log('ERROR: Could not publish to Pubnub', err));
-  }, 2000);
+  }, process.env.DELAY || 2000);
 };
 
 login(tokensUrl, config.username, config.password)
