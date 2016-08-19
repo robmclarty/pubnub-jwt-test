@@ -92,7 +92,7 @@ const updatedUserPositions = users => (
       longitude: user.longitude
     };
     const newBearing = randomInt(0, 360);
-    const newDistance = randomInt(1, 10);
+    const newDistance = randomInt(1, 10) / 20;
     const newPosition = destinationPoint(currentPosition, newBearing, newDistance);
 
     return Object.assign({}, user, {
@@ -143,13 +143,13 @@ const repeatedlyUpdateAndBroadcast = users => {
     broadcastUserPositions(updatedUserPositions(users))
       .then(updatedUsers => repeatedlyUpdateAndBroadcast(updatedUsers))
       .catch(err => console.log('ERROR: Could not publish to Pubnub', err));
-  }, process.env.DELAY || 2000);
+  }, 4000);
 };
 
 login(tokensUrl, config.username, config.password)
   .then(accessToken => getUsers(usersUrl, accessToken))
-  .then(users => repeatedlyUpdateAndBroadcast(users))
-  .then(() => subscribe())
+  .then(users => repeatedlyUpdateAndBroadcast(users.slice(0, 3)))
+  //.then(() => subscribe())
   .catch(err => console.log('ERROR: Something went wrong.', err));
 
 server.listen(port, () => console.log('Server started on port ', port));
